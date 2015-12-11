@@ -6,6 +6,11 @@
 
 using namespace std;
 
+/*
+Алгоритм разбора параметров командной строки.
+*/
+
+
 struct option 
 {
 	char * name;
@@ -14,7 +19,6 @@ struct option
 	bool found;
 	vector<int> val;
 };
-
 
 
 void getopt_long_only (int, char * [], option *);
@@ -36,8 +40,6 @@ int main (int argc, char * argv[])
 	if (long_options[0].found)
 		help(long_options);
 	
-
-	//_getch();
 	return 0;
 }
 
