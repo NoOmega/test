@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 
+
 namespace Komissarov_Alexey
 {
 	struct SLLData
