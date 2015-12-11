@@ -17,7 +17,7 @@ namespace Komissarov_Alexey
 		SLLData *begin;
 	public:
 		SLList ();
-		void Add (const double);	//Добавляет элемент в порядке возрастания
+		void Add (const double);		//Добавляет элемент в порядке возрастания
 		void Print (void);
 		void FLRepack (void);		//Функция переупаковывает список (1->2->3->4 => 1->4->2->3)
 		~SLList ();
