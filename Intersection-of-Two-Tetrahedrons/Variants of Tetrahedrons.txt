@@ -1,0 +1,43 @@
+//Every point of tetrahedron B belongs tetrahedron A 
+	A.a = vector<3>::comps(10, 10, 10);
+	A.b = vector<3>::comps(0, 30, 10);
+	A.c = vector<3>::comps(0, 0, 10);
+	A.d = vector<3>::comps(0, 10, 30);
+
+	B.a = vector<3>::comps(9, 10, 11);
+	B.b = vector<3>::comps(1, 20, 11);
+	B.c = vector<3>::comps(1, 10, 11);
+	B.d = vector<3>::comps(1, 10, 20);
+	
+//One point (d) of tetrahedron B doesn't belong	to tetrahedron A
+	A.a = vector<3>::comps(10, 10, 10);
+	A.b = vector<3>::comps(0, 30, 10);
+	A.c = vector<3>::comps(0, 0, 10);
+	A.d = vector<3>::comps(0, 10, 30);
+
+	B.a = vector<3>::comps(9, 10, 11);
+	B.b = vector<3>::comps(1, 20, 11);
+	B.c = vector<3>::comps(1, 10, 11);
+	B.d = vector<3>::comps(1, 20, 30);
+	
+//Only one point (d) of tetrahedron B belongs to tetrahedron A	
+	A.a = vector<3>::comps(10, 10, 10);
+	A.b = vector<3>::comps(0, 30, 10);
+	A.c = vector<3>::comps(0, 0, 10);
+	A.d = vector<3>::comps(0, 10, 30);
+
+	B.a = vector<3>::comps(10, 30, 10);
+	B.b = vector<3>::comps(4, 30, 10);
+	B.c = vector<3>::comps(10, 20, 10);
+	B.d = vector<3>::comps(1, 10, 20);
+	
+//Two points (b, d) of tetrahedron B belongs to tetrahedron A		
+	A.a = vector<3>::comps(10, 10, 10);
+	A.b = vector<3>::comps(0, 30, 10);
+	A.c = vector<3>::comps(0, 0, 10);
+	A.d = vector<3>::comps(0, 10, 30);
+
+	B.a = vector<3>::comps(9, 10, -11);
+	B.b = vector<3>::comps(1, 20, 11);
+	B.c = vector<3>::comps(1, 10, -11);
+	B.d = vector<3>::comps(1, 10, 20);
