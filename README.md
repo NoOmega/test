@@ -6,4 +6,5 @@
 Вопрос 4 - решение Singly-Linked-List.  
 Вопрос 5 - решение Intersection-of-Two-Tetrahedrons.  
 
+Все задачи реализованы на языке C++.
 Автор: Комиссаров А.И.
