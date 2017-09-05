@@ -29,12 +29,12 @@ unsigned int GetOperatorPriority(Operator iOperator)
 
 NodePtr Node::Create(double iValue)
 {
-	return NodePtr(new ConstantNode(iValue));
+    return NodePtr(new ConstantNode(iValue));
 }
 
 NodePtr Node::Create(Operator iOperator, NodePtr&& iFirst, NodePtr&& iSecond)
 {
-	return NodePtr(new OperationNode(iOperator, std::move(iFirst), std::move(iSecond)));
+    return NodePtr(new OperationNode(iOperator, std::move(iFirst), std::move(iSecond)));
 }
 
 // CONSTATNT NODE
@@ -49,9 +49,9 @@ bool ConstantNode::GetValue(double& oValue) const
 
 OperationNode::OperationNode(Operator iOperator, NodePtr&& iFirst, NodePtr&& iSecond)
 {
-	_first = std::move(iFirst);
-	_second = std::move(iSecond);
-	_operator = iOperator;
+    _first = std::move(iFirst);
+    _second = std::move(iSecond);
+    _operator = iOperator;
 }
 
 bool OperationNode::GetValue(double& oValue) const
@@ -63,8 +63,8 @@ bool OperationNode::GetValue(double& oValue) const
     if (!_first->GetValue(a) || !_second->GetValue(b))
         return false;
 
-	switch (_operator)
-	{
+    switch (_operator)
+    {
         case Operator::Addition:
         {
             oValue = a + b;
@@ -88,7 +88,7 @@ bool OperationNode::GetValue(double& oValue) const
             oValue = a / b;
             return true;
         }
-	}
+    }
 
     return false;
 }
@@ -210,7 +210,7 @@ NodePtr FormulaSolver::ParseOperation(NodePtr&& iLeft, const std::string& iStrin
 
         if (GetOperatorPriority(currentOperator) < GetOperatorPriority(nextOperator))
         {
-            // Ó ñëåäóþùåãî îïåðàòîðà áîëüøå ïðèîðèòåò - ñîçäà¸ì ñíà÷àëà åãî
+            // Ð£ ÑÐ»ÐµÐ´ÑƒÑŽÑ‰ÐµÐ³Ð¾ Ð¾Ð¿ÐµÑ€Ð°Ñ‚Ð¾Ñ€Ð° Ð±Ð¾Ð»ÑŒÑˆÐµ Ð¿Ñ€Ð¸Ð¾Ñ€Ð¸Ñ‚ÐµÑ‚ - ÑÐ¾Ð·Ð´Ð°Ñ‘Ð¼ ÑÐ½Ð°Ñ‡Ð°Ð»Ð° ÐµÐ³Ð¾
             right = ParseOperation(std::move(right), iString, nextOperatorIter);
             if (right == nullptr)
                 return nullptr;
