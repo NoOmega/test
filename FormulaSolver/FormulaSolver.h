@@ -7,11 +7,11 @@
 
 enum class Operator : std::uint8_t
 {
-	Undefined = 0,
-	Addition = 1,
-	Substraction = 2,
-	Multiplication = 3,
-	Division = 4
+    Undefined = 0,
+    Addition = 1,
+    Substraction = 2,
+    Multiplication = 3,
+    Division = 4
 };
 
 unsigned int GetOperatorPriority(Operator iOperator);
@@ -23,17 +23,17 @@ using NodePtr = std::unique_ptr<Node>;
 class Node
 {
 protected:
-	Node() {}
-	virtual ~Node() {}
+    Node() {}
+    virtual ~Node() {}
 
 public:
-	Node(const Node&) = delete;
-	void operator=(const Node&) = delete;
+    Node(const Node&) = delete;
+    void operator=(const Node&) = delete;
 
-	static NodePtr Create(double iValue);
-	static NodePtr Create(Operator iOperator, NodePtr&& iFirst, NodePtr&& iSecond);
+    static NodePtr Create(double iValue);
+    static NodePtr Create(Operator iOperator, NodePtr&& iFirst, NodePtr&& iSecond);
 
-	virtual bool GetValue(double& oValue) const = 0;
+    virtual bool GetValue(double& oValue) const = 0;
 };
 
 
@@ -41,12 +41,12 @@ public:
 class ConstantNode : public Node
 {
 public:
-	explicit ConstantNode(double iValue) : _value(iValue) {}
+    explicit ConstantNode(double iValue) : _value(iValue) {}
 
-	virtual bool GetValue(double& oValue) const override;
+    virtual bool GetValue(double& oValue) const override;
 
 private:
-	double _value;
+    double _value;
 };
 
 
@@ -54,14 +54,14 @@ private:
 class OperationNode : public Node
 {
 public:
-	OperationNode(Operator iOperator, NodePtr&& iFirst, NodePtr&& iSecond);
+    OperationNode(Operator iOperator, NodePtr&& iFirst, NodePtr&& iSecond);
 
-	virtual bool GetValue(double& oValue) const override;
+    virtual bool GetValue(double& oValue) const override;
 	
 private:
-	NodePtr _first;
-	NodePtr _second;
-	Operator _operator;
+    NodePtr _first;
+    NodePtr _second;
+    Operator _operator;
 };
 
 
@@ -70,7 +70,7 @@ private:
 class FormulaSolver
 {
 public:
-	FormulaSolver();
+    FormulaSolver();
     ~FormulaSolver() {}
 
     enum class Result : std::uint8_t
@@ -106,6 +106,6 @@ private:
     bool GetRightOperand(const std::string& iString, std::string::const_iterator iFrom, double& oNumber) const;
 
 private:
-	NodePtr _top;
+    NodePtr _top;
 };
 
