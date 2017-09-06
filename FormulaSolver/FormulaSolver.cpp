@@ -12,7 +12,7 @@ public:
     Error(const std::string& s) : std::runtime_error(s) {}
 };
 
-unsigned int GetOperatorPriority(Operator iOperator)
+int GetOperatorPriority(Operator iOperator)
 {
     switch (iOperator)
     {
@@ -20,8 +20,9 @@ unsigned int GetOperatorPriority(Operator iOperator)
         case Operator::Substraction: return 0;
         case Operator::Multiplication:
         case Operator::Division: return 1;
-        case Operator::Undefined: throw Error("GetOperatorPriority(Operator::Undefined)");
     }
+
+    return -1;
 }
 
 
@@ -107,7 +108,7 @@ FormulaSolver::Result FormulaSolver::ParseFormula(const std::string& iFormulaStr
     if (iFormulaString.empty())
         return Result::EmptyInputString;
 
-    
+
 }
 
 bool FormulaSolver::Solve(double& oResult) const
@@ -121,25 +122,25 @@ bool FormulaSolver::Solve(double& oResult) const
 bool FormulaSolver::IsOperator(const char& iCharacter) const
 {
     return iCharacter == '+' ||
-           iCharacter == '-' ||
-           iCharacter == '/' ||
-           iCharacter == '*';
+        iCharacter == '-' ||
+        iCharacter == '/' ||
+        iCharacter == '*';
 }
 
 bool FormulaSolver::IsNumeric(const char& iCharacter) const
 {
     return iCharacter == '0' ||
-           iCharacter == '1' ||
-           iCharacter == '2' ||
-           iCharacter == '3' ||
-           iCharacter == '4' ||
-           iCharacter == '5' ||
-           iCharacter == '6' ||
-           iCharacter == '7' ||
-           iCharacter == '8' ||
-           iCharacter == '9' ||
-           iCharacter == '.' ||
-           iCharacter == ',';
+        iCharacter == '1' ||
+        iCharacter == '2' ||
+        iCharacter == '3' ||
+        iCharacter == '4' ||
+        iCharacter == '5' ||
+        iCharacter == '6' ||
+        iCharacter == '7' ||
+        iCharacter == '8' ||
+        iCharacter == '9' ||
+        iCharacter == '.' ||
+        iCharacter == ',';
 }
 
 bool FormulaSolver::GetNumber(const std::string& iString, double& oNumber) const
@@ -155,71 +156,91 @@ bool FormulaSolver::GetNumber(const std::string& iString, double& oNumber) const
     return false;
 }
 
-Operator FormulaSolver::GetOperator(const char& iCharacter) const
+bool FormulaSolver::GetOperator(const char& iCharacter, Operator& oOperator) const
 {
     switch (iCharacter)
     {
-        case '+': return Operator::Addition;
-        case '-': return Operator::Substraction;
-        case '*': return Operator::Multiplication;
-        case '/': return Operator::Division;
+        case '+': oOperator = Operator::Addition; return true;
+        case '-': oOperator = Operator::Substraction; return true;
+        case '*': oOperator = Operator::Multiplication; return true;
+        case '/': oOperator = Operator::Division; return true;
     }
 
-    return Operator::Undefined;
+    return false;
 }
 
-NodePtr FormulaSolver::ParseBlock(const std::string& iString) const
+FormulaSolver::Result FormulaSolver::RecursiveParseBlock(const std::string& iString, NodePtr& oBlockNode) const
 {
     if (iString.empty())
-        return nullptr;
+        return Result::EmptyInputString;
 
     double firstNum = 0.;
     auto startIter = iString.begin();
-    if (!GetRightOperand(iString, startIter, firstNum))
-        return nullptr;
 
-    auto result = Node::Create(firstNum);
+    if (IsOperator(*startIter))
+        return Result::BadOperand;
+
+    if (IsOpeningParanthesisBeforeNextOperator(iString, startIter))
+        /// RecursiveParseBlock here
+
+    if (!GetRightOperand(iString, startIter, firstNum))
+        return Result::BadOperand;
+
+    oBlockNode = Node::Create(firstNum);
 
     auto currentOperatorIter = FindNextOperator(iString, startIter);
     while (currentOperatorIter != startIter)
     {
-        result = ParseOperation(std::move(result), iString, currentOperatorIter);
+        auto res = RecursiveParseOperation(std::move(oBlockNode), iString, currentOperatorIter, oBlockNode);
+        if (res != Result::Success)
+            return res;
 
         startIter = currentOperatorIter;
         currentOperatorIter = FindNextOperator(iString, startIter);
     }
 
-    return result;
+    return Result::Success;
 }
 
-NodePtr FormulaSolver::ParseOperation(NodePtr&& iLeft, const std::string& iString, std::string::const_iterator& iOperatorIter) const
+FormulaSolver::Result FormulaSolver::RecursiveParseOperation(NodePtr&& iLeft, const std::string& iString, std::string::const_iterator& iOperatorIter, NodePtr& oOperationNode) const
 {
     double num = 0.;
     auto startIter = iString.begin();
     if (!GetRightOperand(iString, iOperatorIter, num))
-        return nullptr;
+        return Result::BadOperand;
 
-    auto currentOperator = GetOperator(*iOperatorIter);
+    Operator currentOperator;
+    if (!GetOperator(*iOperatorIter, currentOperator))
+        return Result::UnknownOperator;
 
     auto right = Node::Create(num);
 
     auto nextOperatorIter = FindNextOperator(iString, iOperatorIter);
     if (nextOperatorIter != iOperatorIter)
     {
-        auto nextOperator = GetOperator(*nextOperatorIter);
+        Operator nextOperator;
+        if (!GetOperator(*nextOperatorIter, nextOperator))
+            return Result::UnknownOperator;
 
-        if (GetOperatorPriority(currentOperator) < GetOperatorPriority(nextOperator))
+        // Проверка приоритетов текущей и следующей операций
+        auto curPriority = GetOperatorPriority(currentOperator);
+        auto nextPriority = GetOperatorPriority(nextOperator);
+        if (curPriority < 0 || nextPriority < 0)
+            return Result::UnknownOperatorPriority;
+
+        if (curPriority < nextPriority)
         {
             // У следующего оператора больше приоритет - создаём сначала его
-            right = ParseOperation(std::move(right), iString, nextOperatorIter);
-            if (right == nullptr)
-                return nullptr;
+            auto res = RecursiveParseOperation(std::move(right), iString, nextOperatorIter, right);
+            if (res != Result::Success)
+                return res;
 
             iOperatorIter = nextOperatorIter;
         }
     }
 
-    return Node::Create(currentOperator, std::move(iLeft), std::move(right));
+    oOperationNode = Node::Create(currentOperator, std::move(iLeft), std::move(right));
+    return Result::Success;
 }
 
 std::string::const_iterator FormulaSolver::FindNextOperator(const std::string& iString, std::string::const_iterator iStart) const
@@ -233,9 +254,17 @@ std::string::const_iterator FormulaSolver::FindNextOperator(const std::string& i
     return iStart;
 }
 
-bool FormulaSolver::FindNextBlock(const std::string& iString, std::string::iterator iStart, std::string& oBlock) const
+bool FormulaSolver::IsOpeningParanthesisBeforeNextOperator(const std::string& iString, std::string::const_iterator iStart) const
 {
+    for (auto iter = iStart; iter != iString.end(); ++iter)
+    {
+        if (*iter == '(')
+            return true;
+        else if (IsOperator(*iter))
+            return false;
+    }
 
+    return false;
 }
 
 bool FormulaSolver::GetLeftOperand(const std::string& iString, std::string::const_iterator iOperator, double& oNumber) const
@@ -252,7 +281,7 @@ bool FormulaSolver::GetRightOperand(const std::string& iString, std::string::con
     {
         if (!IsNumeric(*iter))
         {
-            if (str.empty())
+            if (*iter == ' ')
                 continue;
             else
                 break;
