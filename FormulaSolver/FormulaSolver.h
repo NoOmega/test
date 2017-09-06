@@ -7,14 +7,13 @@
 
 enum class Operator : std::uint8_t
 {
-    Undefined = 0,
-    Addition = 1,
-    Substraction = 2,
-    Multiplication = 3,
-    Division = 4
+    Addition = 0,
+    Substraction = 1,
+    Multiplication = 2,
+    Division = 3
 };
 
-unsigned int GetOperatorPriority(Operator iOperator);
+int GetOperatorPriority(Operator iOperator);
 
 
 using NodePtr = std::unique_ptr<Node>;
@@ -57,7 +56,7 @@ public:
     OperationNode(Operator iOperator, NodePtr&& iFirst, NodePtr&& iSecond);
 
     virtual bool GetValue(double& oValue) const override;
-	
+
 private:
     NodePtr _first;
     NodePtr _second;
@@ -77,9 +76,11 @@ public:
     {
         Success = 0,
         UnknownError = 1,
-        BadParenthesis = 2,
-        UnknownOperation = 3,
-        EmptyInputString = 4,
+        BadParentheses = 2,
+        UnknownOperator = 3,
+        UnknownOperatorPriority = 4,
+        EmptyInputString = 5,
+        BadOperand = 6,
     };
 
     Result ParseFormula(const std::string& iFormulaString);
@@ -93,14 +94,14 @@ private:
 
     bool GetNumber(const std::string& iString, double& oNumber) const;
 
-    Operator GetOperator(const char& iCharacter) const;
+    bool GetOperator(const char& iCharacter, Operator& oOperator) const;
 
-    NodePtr ParseBlock(const std::string& iString) const;
-    NodePtr ParseOperation(NodePtr&& iLeft, const std::string& iString, std::string::const_iterator& iOperatorIter) const;
+    Result RecursiveParseBlock(const std::string& iString, NodePtr& oBlockNode) const;
+    Result RecursiveParseOperation(NodePtr&& iLeft, const std::string& iString, std::string::const_iterator& iOperatorIter, NodePtr& oOperationNode) const;
 
     std::string::const_iterator FindNextOperator(const std::string& iString, std::string::const_iterator iStart) const;
 
-    bool FindNextBlock(const std::string& iString, std::string::iterator iStart, std::string& oBlock) const;
+    bool IsOpeningParanthesisBeforeNextOperator(const std::string& iString, std::string::const_iterator iStart) const;
 
     bool GetLeftOperand(const std::string& iString, std::string::const_iterator iFrom, double& oNumber) const;
     bool GetRightOperand(const std::string& iString, std::string::const_iterator iFrom, double& oNumber) const;
@@ -108,4 +109,3 @@ private:
 private:
     NodePtr _top;
 };
-
