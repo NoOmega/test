@@ -153,7 +153,7 @@ void FormulaSolver::ResultToConsole(FormulaSolver::Result iResult)
         case FormulaSolver::Result::BadParentheses: std::cout << "Error in brackets"; break;
         case FormulaSolver::Result::EmptyInputString: std::cout << "Empty formula"; break;
         case FormulaSolver::Result::UnknownOperator: std::cout << "There is unknown operator"; break;
-        case FormulaSolver::Result::UnknownOperatorPriority: std::cout << "The creature that added new operator forgot to set priority in \"GetOperatorPriority()\""; break;
+        case FormulaSolver::Result::UnknownOperatorPriority: std::cout << "You forgot to add priority for new operator in \"GetOperatorPriority()\""; break;
         case FormulaSolver::Result::BadCharacter: std::cout << "Bad character"; break;
     }
 }
