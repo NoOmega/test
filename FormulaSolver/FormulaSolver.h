@@ -15,8 +15,6 @@ enum class Operator : std::uint8_t
 
 int GetOperatorPriority(Operator iOperator);
 
-
-//using NodePtr = std::unique_ptr<class Node>;
 typedef std::unique_ptr<class Node> NodePtr;
 
 /// Базовывй класс узла дерева
