@@ -30,7 +30,7 @@ public:
 private:
     Node(const Node&);
     void operator=(const Node&);
-    
+
 public:
     static NodePtr Create(double iValue);
     static NodePtr Create(Operator iOperator, NodePtr&& iFirst, NodePtr&& iSecond);
@@ -83,12 +83,15 @@ public:
         UnknownOperator = 3,
         UnknownOperatorPriority = 4,
         EmptyInputString = 5,
-        BadOperand = 6
+        BadOperand = 6,
+        BadCharacter = 7
     };
 
     Result ParseFormula(const std::string& iFormulaString);
 
     bool Solve(double& oResult) const;
+
+    static void ResultToConsole(Result iResult);
 
 private:
     bool IsOperator(const char& iCharacter) const;
