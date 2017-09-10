@@ -212,7 +212,7 @@ namespace Tree
         static NodePtr Create(double iValue);
         static NodePtr Create(Operator iOperator, NodePtr&& iFirst, NodePtr&& iSecond);
 
-        virtual bool GetValue(double& oValue) const = 0;
+        virtual FormulaSolver::Result GetValue(double& oValue) const = 0;
 
         virtual void PrintToConsole(std::vector<std::string>& ioLevels, size_t iLevel, std::vector<std::vector<size_t>>& ioVConnections) const = 0;
     };
@@ -223,7 +223,7 @@ namespace Tree
     public:
         explicit ConstantNode(double iValue) : _value(iValue) {}
 
-        virtual bool GetValue(double& oValue) const override;
+        virtual FormulaSolver::Result GetValue(double& oValue) const override;
 
         virtual void PrintToConsole(std::vector<std::string>& ioLevels, size_t iLevel, std::vector<std::vector<size_t>>& ioVConnections) const override;
 
@@ -237,7 +237,7 @@ namespace Tree
     public:
         OperationNode(Operator iOperator, NodePtr&& iLeft, NodePtr&& iRight);
 
-        virtual bool GetValue(double& oValue) const override;
+        virtual FormulaSolver::Result GetValue(double& oValue) const override;
 
         virtual void PrintToConsole(std::vector<std::string>& ioLevels, size_t iLevel, std::vector<std::vector<size_t>>& ioVConnections) const override;
 
@@ -262,10 +262,10 @@ namespace Tree
 
     // CONSTATNT NODE
 
-    bool ConstantNode::GetValue(double& oValue) const
+    FormulaSolver::Result ConstantNode::GetValue(double& oValue) const
     {
         oValue = _value;
-        return true;
+        return FormulaSolver::Result::Success;
     }
 
     void ConstantNode::PrintToConsole(std::vector<std::string>& ioLevels, size_t iLevel, std::vector<std::vector<size_t>>& ioVConnections) const
@@ -286,43 +286,47 @@ namespace Tree
         _operator = iOperator;
     }
 
-    bool OperationNode::GetValue(double& oValue) const
+    FormulaSolver::Result OperationNode::GetValue(double& oValue) const
     {
         if (_left == nullptr || _right == nullptr)
-            return false;
+            return FormulaSolver::Result::InternalError;
 
         double a = 0., b = 0.;
-        if (!_left->GetValue(a) || !_right->GetValue(b))
-            return false;
+        auto res1 = _left->GetValue(a);
+        if (res1 != FormulaSolver::Result::Success)
+            return res1;
+        auto res2 = _right->GetValue(b);
+        if (res2 != FormulaSolver::Result::Success)
+            return res2;
 
         switch (_operator)
         {
             case Operator::Addition:
             {
                 oValue = a + b;
-                return true;
+                return FormulaSolver::Result::Success;
             }
             case Operator::Substraction:
             {
                 oValue = a - b;
-                return true;
+                return FormulaSolver::Result::Success;
             }
             case Operator::Multiplication:
             {
                 oValue = a * b;
-                return true;
+                return FormulaSolver::Result::Success;
             }
             case Operator::Division:
             {
                 if (b == 0.)
-                    return false;
+                    return FormulaSolver::Result::DivideByZero;
 
                 oValue = a / b;
-                return true;
+                return FormulaSolver::Result::Success;
             }
         }
 
-        return false;
+        return FormulaSolver::Result::InternalError;
     }
 
     void OperationNode::PrintToConsole(std::vector<std::string>& ioLevels, size_t iLevel, std::vector<std::vector<size_t>>& ioVConnections) const
@@ -589,10 +593,7 @@ FormulaSolver::Result FormulaSolver::Solve(const std::string& iFormulaString, do
     if (iShowTree)
         Tree::PrintToConsole(top);
 
-    if (!top->GetValue(oResult))
-        return Result::InternalError;
-
-    return Result::Success;
+    return top->GetValue(oResult);
 }
 
 void FormulaSolver::ResultToConsole(FormulaSolver::Result iResult)
@@ -608,5 +609,6 @@ void FormulaSolver::ResultToConsole(FormulaSolver::Result iResult)
         case Result::UnknownOperatorPriority: std::cout << "You forgot to set priority for new operator in \"GetOperatorPriority()\""; break;
         case Result::BadCharacter: std::cout << "Bad character"; break;
         case Result::InternalError: std::cout << "Internal solver error, revision required"; break;
+        case Result::DivideByZero: std::cout << "Cannot divide by zero"; break;
     }
 }
