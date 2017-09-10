@@ -20,7 +20,8 @@ public:
         EmptyInputString = 5,
         BadOperand = 6,
         BadCharacter = 7,
-        InternalError = 8
+        InternalError = 8,
+        DivideByZero = 9
     };
 
     /// <summary> Решить формулу </summary>
