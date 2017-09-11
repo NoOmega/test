@@ -46,13 +46,13 @@ void prime_factors (const int N)
 	while ((maxPN * maxPN) < N)
 	{
 		current_num += 2;
-		bool isPrime = 1;
+		bool isPrime = true;
 
 		for (int i = 1; prime_num[i] <= sqrt(current_num); i++)
 		{
 			if ((current_num % prime_num[i]) == 0)
 			{	
-				isPrime = 0;
+				isPrime = false;
 				break;
 			}
 		}
