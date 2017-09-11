@@ -12,9 +12,9 @@ void prime_factors (const int);
 
 int main ()
 {
-	prime_factors(10000);
-	_getch();
-	return 0;
+    prime_factors(10000);
+    _getch();
+    return 0;
 }
 
 /*
@@ -28,63 +28,63 @@ int main ()
 
 void prime_factors (const int N)
 {
-	if (N < 1)
-	{
-		cout << "Wrong number N.";
-		return;
-	}
+    if (N < 1)
+    {
+        cout << "Wrong number N.";
+        return;
+    }
 	
-	vector<int> prime_num(1, 2);
-	int maxPN, current_num;
+    vector<int> prime_num(1, 2);
+    int maxPN, current_num;
 
 	//-----------------Searching prime numbers from 1 to sqrt(N)-----------------
 
-	prime_num.push_back(3);
-	maxPN = prime_num[1];
-	current_num = maxPN;
+    prime_num.push_back(3);
+    maxPN = prime_num[1];
+    current_num = maxPN;
 
-	while ((maxPN * maxPN) < N)
-	{
-		current_num += 2;
-		bool isPrime = true;
+    while ((maxPN * maxPN) < N)
+    {
+        current_num += 2;
+        bool isPrime = true;
 
-		for (int i = 1; prime_num[i] <= sqrt(current_num); i++)
-		{
-			if ((current_num % prime_num[i]) == 0)
-			{	
-				isPrime = false;
-				break;
-			}
-		}
+        for (int i = 1; prime_num[i] <= sqrt(current_num); i++)
+        {
+            if ((current_num % prime_num[i]) == 0)
+            {	
+                isPrime = false;
+                break;
+            }
+        }
 		
-		if (isPrime)
-		{
-			prime_num.push_back(current_num);
-			maxPN = current_num;
-		}
-	}
+        if (isPrime)
+        {
+            prime_num.push_back(current_num);
+            maxPN = current_num;
+        }
+    }
 
-	//--------------Searching prime factors--------------
+    //--------------Searching prime factors--------------
 
-	for (current_num = 1; current_num <= N; current_num++)
-	{
-		int tmp = current_num;
+    for (current_num = 1; current_num <= N; current_num++)
+    {
+        int tmp = current_num;
 		
-		cout << current_num << ": ";
+        cout << current_num << ": ";
 
-		for (int i = 0; prime_num[i] <= sqrt(current_num); i++)
-		{
-			if (tmp % prime_num[i] == 0)
-			{
-				cout << prime_num[i] << " ";
-				tmp /= prime_num[i];
-				i = -1;
-			}
-		}
+        for (int i = 0; prime_num[i] <= sqrt(current_num); i++)
+        {
+            if (tmp % prime_num[i] == 0)
+            {
+                cout << prime_num[i] << " ";
+                tmp /= prime_num[i];
+                i = -1;
+            }
+        }
 
-		if (current_num == tmp || sqrt(current_num) < tmp) 
-			cout << tmp;
+        if (current_num == tmp || sqrt(current_num) < tmp) 
+            cout << tmp;
 
-		cout << endl;
-	}
+        cout << endl;
+    }
 }
