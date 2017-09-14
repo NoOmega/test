@@ -34,25 +34,25 @@ namespace ParserUtils
     static bool IsOperator(const char& iCharacter)
     {
         return iCharacter == '+' ||
-               iCharacter == '-' ||
-               iCharacter == '/' ||
-               iCharacter == '*';
+            iCharacter == '-' ||
+            iCharacter == '/' ||
+            iCharacter == '*';
     }
 
     static bool IsNumeric(const char& iCharacter)
     {
         return iCharacter == '0' ||
-               iCharacter == '1' ||
-               iCharacter == '2' ||
-               iCharacter == '3' ||
-               iCharacter == '4' ||
-               iCharacter == '5' ||
-               iCharacter == '6' ||
-               iCharacter == '7' ||
-               iCharacter == '8' ||
-               iCharacter == '9' ||
-               iCharacter == '.' ||
-               iCharacter == ',';
+            iCharacter == '1' ||
+            iCharacter == '2' ||
+            iCharacter == '3' ||
+            iCharacter == '4' ||
+            iCharacter == '5' ||
+            iCharacter == '6' ||
+            iCharacter == '7' ||
+            iCharacter == '8' ||
+            iCharacter == '9' ||
+            iCharacter == '.' ||
+            iCharacter == ',';
     }
 
     static bool GetNumber(const std::string& iString, double& oNumber)
@@ -105,6 +105,12 @@ namespace ParserUtils
     {
         size_t innerBlockCount = 0;
         bool foundOpen = false;
+        if (*iStart == '(')
+        {
+            innerBlockCount++;
+            foundOpen = true;
+        }
+
         for (auto iter = iStart + 1; iter != iString.end(); ++iter)
         {
             if (*iter == '(')
@@ -429,15 +435,21 @@ public:
         if (ParserUtils::IsOpeningBracketBeforeNextOperator(iString, iBlockStartIter))
         {
             // Если блок начинается с вложенного блока - парсим вложенный
+            auto blockStart = iBlockStartIter;
             auto res = RecursiveParseBlock(iString, ++iBlockStartIter, oBlockNode);
             if (res != FormulaSolver::Result::Success)
                 return res;
+
+            // Обработка минуса перед скобкой
+            if (firstNumIsNegative)
+                oBlockNode = Tree::Node::Create(Operator::Multiplication, std::move(oBlockNode), Tree::Node::Create(-1));
 
             // Если блок состоит только из вложенного - возвращаем результат
             if (iBlockStartIter == iString.end())
                 return res;
 
-            --iBlockStartIter;
+            //if (!ParserUtils::IsOperator(*iBlockStartIter))
+            iBlockStartIter = blockStart;
         }
         else
         {
@@ -579,7 +591,7 @@ FormulaSolver::Result FormulaSolver::Solve(const std::string& iFormulaString, do
 
     if (bracketStack != 0)
         return Result::BadParentheses;
-    
+
     // Парсим формулу и строим дерево
     Tree::NodePtr top = nullptr;
     auto res = Parser::RecursiveParseBlock(formula, formula.begin(), top);
