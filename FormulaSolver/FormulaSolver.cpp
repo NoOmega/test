@@ -408,6 +408,8 @@ namespace Tree
     }
 }
 
+// PARSER
+
 class Parser
 {
     Parser();
@@ -469,94 +471,15 @@ public:
             }
         }
 
-        // Пока в блоке есть операторы - парсим их
-        //auto currentOperatorIter = ParserUtils::FindNextOperator(iString, iBlockStartIter);
-        //while (currentOperatorIter != iBlockStartIter)
-        //{
-        //    auto res = RecursiveParseOperation(std::move(oBlockNode), iString, currentOperatorIter, oBlockNode);
-        //    if (res != FormulaSolver::Result::Success)
-        //        return res;
-        //
-        //    if (ParserUtils::IsClosingBracketBeforeNextOperator(iString, currentOperatorIter))
-        //    {
-        //        // Конец блока
-        //        ParserUtils::MoveIterNextAfterBlock(iString, currentOperatorIter);
-        //        iBlockStartIter = currentOperatorIter;
-        //        return FormulaSolver::Result::Success;
-        //    }
-        //
-        //    iBlockStartIter = currentOperatorIter;
-        //    currentOperatorIter = ParserUtils::FindNextOperator(iString, iBlockStartIter);
-        //}
-
-        auto res = RecursiveParseOperatorChain(std::move(oBlockNode), iString, iBlockStartIter, oBlockNode);
-        if (res != FormulaSolver::Result::Success)
-            return res;
-
-        return FormulaSolver::Result::Success;
-    }
-
-    static FormulaSolver::Result RecursiveParseOperation(Tree::NodePtr&& iLeft, const std::string& iString, std::string::const_iterator& iOperatorIter, Tree::NodePtr& oOperationNode)
-    {
-        Operator currentOperator;
-        if (!ParserUtils::GetOperator(*iOperatorIter, currentOperator))
-            return FormulaSolver::Result::UnknownOperator;
-
-        Tree::NodePtr right = nullptr;
-        if (ParserUtils::IsOpeningBracketBeforeNextOperator(iString, iOperatorIter + 1))
+        // Пока в блоке есть операторы - парсим их цепочками по приоритету
+        do
         {
-            // Если правый операнд - блок, парсим его
-            auto blockIter = iOperatorIter + 1;
-            ParserUtils::MoveIterIntoNextBlock(iString, blockIter);
-
-            auto res = RecursiveParseBlock(iString, blockIter, right);
+            auto res = RecursiveParseOperatorChain(std::move(oBlockNode), iString, iBlockStartIter, oBlockNode);
             if (res != FormulaSolver::Result::Success)
                 return res;
-        }
-        else
-        {
-            // Берём правый операнд и создаём узел
-            double num = 0.;
-            if (!ParserUtils::GetRightOperand(iString, iOperatorIter, num))
-                return FormulaSolver::Result::BadOperand;
 
-            right = Tree::Node::Create(num);
-        }
+        } while (iBlockStartIter != ParserUtils::FindNextOperator(iString, iBlockStartIter));
 
-        if (ParserUtils::IsClosingBracketBeforeNextOperator(iString, iOperatorIter + 1))
-        {
-            // Если последняя операция в блоке
-            ++iOperatorIter;
-        }
-        else
-        {
-            // Находим следующий оператор
-            auto nextOperatorIter = ParserUtils::FindNextOperator(iString, iOperatorIter);
-            if (nextOperatorIter != iOperatorIter)
-            {
-                Operator nextOperator;
-                if (!ParserUtils::GetOperator(*nextOperatorIter, nextOperator))
-                    return FormulaSolver::Result::UnknownOperator;
-
-                // Проверка приоритетов текущего и следующего оператора
-                auto currPriority = ParserUtils::GetOperatorPriority(currentOperator);
-                auto nextPriority = ParserUtils::GetOperatorPriority(nextOperator);
-                if (currPriority < 0 || nextPriority < 0)
-                    return FormulaSolver::Result::UnknownOperatorPriority;
-
-                if (currPriority < nextPriority)
-                {
-                    // У следующего оператора больше приоритет - создаём сначала его
-                    auto res = RecursiveParseOperation(std::move(right), iString, nextOperatorIter, right);
-                    if (res != FormulaSolver::Result::Success)
-                        return res;
-
-                    iOperatorIter = nextOperatorIter;
-                }
-            }
-        }
-
-        oOperationNode = Tree::Node::Create(currentOperator, std::move(iLeft), std::move(right));
         return FormulaSolver::Result::Success;
     }
 
@@ -593,12 +516,7 @@ public:
                 right = Tree::Node::Create(num);
             }
 
-            if (ParserUtils::IsClosingBracketBeforeNextOperator(iString, currentOperatorIter + 1))
-            {
-                // Если последняя операция в блоке
-                ++currentOperatorIter;
-            }
-            else
+            if (!ParserUtils::IsClosingBracketBeforeNextOperator(iString, currentOperatorIter + 1))
             {
                 // Находим следующий оператор
                 auto nextOperatorIter = ParserUtils::FindNextOperator(iString, currentOperatorIter);
@@ -616,12 +534,10 @@ public:
 
                     if (currentPriority < nextPriority)
                     {
-                        // У следующего оператора больше приоритет - создаём сначала его
+                        // У следующего оператора больше приоритет - парсим следующую цепочку операторов
                         auto res = RecursiveParseOperatorChain(std::move(right), iString, currentOperatorIter, right);
                         if (res != FormulaSolver::Result::Success)
                             return res;
-
-                        //iOperatorIter = nextOperatorIter;
                     }
                     else if (currentPriority > nextPriority)
                     {
@@ -631,18 +547,11 @@ public:
                 }
             }
 
+            // Создаём операцию
             oChainNode = Tree::Node::Create(currentOperator, std::move(oChainNode), std::move(right));
 
             if (endOfChain)
                 return FormulaSolver::Result::Success;
-
-            if (ParserUtils::IsClosingBracketBeforeNextOperator(iString, currentOperatorIter))
-            {
-                // Конец блока
-                ParserUtils::MoveIterNextAfterBlock(iString, currentOperatorIter);
-                iStartIter = currentOperatorIter;
-                return FormulaSolver::Result::Success;
-            }
 
             iStartIter = currentOperatorIter;
             currentOperatorIter = ParserUtils::FindNextOperator(iString, iStartIter);
