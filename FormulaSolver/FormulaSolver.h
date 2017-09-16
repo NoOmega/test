@@ -32,7 +32,8 @@ public:
     /// <returns> Результат работы </returns>
     static Result Solve(const std::string& iFormulaString, double& oResult, bool iShowTree = false);
 
-    /// <summary> Вывести результат в консоль </summary>
+    /// <summary> Получить результат работы решателя в формате строки </summary>
     /// <param name="iResult"> Результат работы решателя </param>
-    static void ResultToConsole(Result iResult);
+    /// <returns> Результат работы в формате строки </returns>
+    static std::string ResultToString(Result iResult);
 };
