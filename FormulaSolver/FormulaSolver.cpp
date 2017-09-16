@@ -611,19 +611,21 @@ FormulaSolver::Result FormulaSolver::Solve(const std::string& iFormulaString, do
     return top->GetValue(oResult);
 }
 
-void FormulaSolver::ResultToConsole(FormulaSolver::Result iResult)
+std::string FormulaSolver::ResultToString(Result iResult)
 {
-    std::cout << std::endl;
+    std::string resString;
     switch (iResult)
     {
-        case Result::UnknownError: std::cout << "Unknown error"; break;
-        case Result::BadOperand: std::cout << "There is no operand for some operator"; break;
-        case Result::BadParentheses: std::cout << "Error in brackets"; break;
-        case Result::EmptyInputString: std::cout << "Empty formula"; break;
-        case Result::UnknownOperator: std::cout << "There is unknown operator"; break;
-        case Result::UnknownOperatorPriority: std::cout << "You forgot to set priority for new operator in \"GetOperatorPriority()\""; break;
-        case Result::BadCharacter: std::cout << "Bad character"; break;
-        case Result::InternalError: std::cout << "Internal solver error, revision required"; break;
-        case Result::DivideByZero: std::cout << "Cannot divide by zero"; break;
+        case Result::UnknownError: resString = "Unknown error"; break;
+        case Result::BadOperand: resString = "There is no operand for some operator"; break;
+        case Result::BadParentheses: resString = "Error in brackets"; break;
+        case Result::EmptyInputString: resString = "Empty formula"; break;
+        case Result::UnknownOperator: resString = "There is unknown operator"; break;
+        case Result::UnknownOperatorPriority: resString = "You forgot to set priority for new operator in \"GetOperatorPriority()\""; break;
+        case Result::BadCharacter: resString = "Bad character"; break;
+        case Result::InternalError: resString = "Internal solver error, revision required"; break;
+        case Result::DivideByZero: resString = "Cannot divide by zero"; break;
+        default: resString = "Unknown result"; break;
     }
+    return resString;
 }
