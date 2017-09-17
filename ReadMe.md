@@ -4,7 +4,7 @@
 #### <a href="https://github.com/NoOmega/tests/tree/master/FormulaSolver">1 - Formula Solver</a>
 Есть формула с цифрами, операциями +-*/ и скобками в формате строки. Нужно написать программу, которая ее вычисляет. Формула может быть большой. Хочется, чтобы программу можно было легко дорабатывать, вводя функции, параметры и т.д.
 
-#### <a href="https://github.com/NoOmega/tests/tree/master/PrimeFactors">2 - Prime Factors</a>
+#### <a href="https://github.com/NoOmega/tests/tree/master/PrimeFactorDecomposition">2 - Prime Factor Decomposition</a>
 Напишите функцию, которая перебирает натуральные числа от 1 до N включительно и раскладывает каждое число на простые множители. Результат можно выводить на экран либо копить в любой структуре данных.
 
 #### <a href="https://github.com/NoOmega/tests/tree/master/VectorDivision">3 - Vector Division</a>
